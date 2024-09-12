@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:store_app/models/product_model.dart';
+import 'package:store_app/services/all_products_service.dart';
+import 'package:store_app/widgets/custom_card.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -11,6 +14,7 @@ class HomePage extends StatelessWidget {
         title: const Text(
           'New Trend',
           style: TextStyle(
+            fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
         ),
@@ -25,67 +29,39 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: GridView(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisSpacing: 10,
-          crossAxisSpacing: 10,
-        ),
-        children: [
-          SizedBox(
-            height: 220,
-            width: 230,
-            child: Card(
-              elevation: 5,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 16,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Image.network(
-                        fit: BoxFit.contain,
-                        'https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg',
-                        height: 100,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    const Text(
-                      'Handbag Lv',
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          r'$255',
-                          style: TextStyle(
-                            fontSize: 16,
-                          ),
-                        ),
-                        Icon(
-                          Icons.favorite,
-                          color: Colors.red,
-                        )
-                      ],
-                    ),
-                  ],
-                ),
+      body: FutureBuilder<List<ProductModel>>(
+        future: AllProductServices().getAllProducts(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            List<ProductModel> products = snapshot.data!;
+            return GridView.builder(
+              itemCount: products.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () => Navigator.pushNamed(
+                    context,
+                    '/update_product_page',
+                    arguments: products[index],
+                  ),
+                  child: CustomCard(
+                    product: products[index],
+                  ),
+                );
+              },
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 10,
+                crossAxisSpacing: 10,
               ),
-            ),
-          ),
-        ],
+            );
+          } else if (snapshot.hasError) {
+            return Text('${snapshot.error}');
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
       ),
     );
   }

@@ -4,7 +4,7 @@ class ProductModel {
   final String description;
   final String image;
   final double price;
-  final int quantity;
+  final int? quantity;
   final RatingModel rating;
 
   ProductModel({
@@ -13,7 +13,7 @@ class ProductModel {
     required this.description,
     required this.image,
     required this.price,
-    required this.quantity,
+    this.quantity,
     required this.rating,
   });
 
@@ -23,7 +23,7 @@ class ProductModel {
       title: json['title'],
       description: json['description'],
       image: json['image'],
-      price: json['price'],
+      price: json['price']?.toDouble() ?? 0.0,
       quantity: json['quantity'],
       rating: RatingModel.fromJson(json['rating']),
     );
@@ -41,7 +41,7 @@ class RatingModel {
 
   factory RatingModel.fromJson(Map<String, dynamic> json) {
     return RatingModel(
-      rate: json['rate'],
+      rate: json['rate']?.toDouble() ?? 0.0,
       count: json['count'],
     );
   }
